@@ -27,13 +27,6 @@
 (setq auto-save-default t
       make-backup-files t)
 
-;; kill emacs without confiming
-(setq confirm-kill-emacs nil)
-
-;; remap <localleader> from SPC m to SPC l
-(setq doom-localleader-key "SPC l"
-      doom-localleader-alt-key "M-SPC l")
-
 ;;;; Add dvorak layout
 (after! quail
   (add-to-list 'quail-keyboard-layout-alist
@@ -48,14 +41,15 @@
 ;;;; Add Ukrainian language
 (set-input-method "ukrainian-computer")
 
+;;;; Stop Emacs from asking be if I want to kill the buffer
+(remove-hook 'kill-buffer-query-functions 'process-kill-buffer-query-function)
+
 ;;;; Unmapping extra doom keybindings
 (map! :leader
       "a" nil
       "c" nil
-
       "C-f" nil)
 
-(setcdr doom-leader-notes-map nil)
 ;;;; Mapping capture and agenda where they belong
 (map! :desc "org-capture" "C-c c" #'org-capture
       :desc "org-agenda"  "C-c a" #'org-agenda)
@@ -199,6 +193,9 @@
            ("d" "~/git/dotfiles" "Dotfiles"))))
 
 (setq org-directory "~/org/"
+      org-attach-id-dir "~/org/.attach/"
+      org-attach-directory "~/org/.attach/"
+      org-roam-directory "~/org/roam/"
       org-use-property-inheritance t
       org-startup-with-inline-images t
       org-hide-emphasis-markers t
