@@ -327,7 +327,7 @@ Setup LaTeX previews in =org-mode=. See https://abode.karthinks.com/org-latex-pr
 ;;   (setq org-latex-preview-live t)
 ;;   (setq org-latex-preview-live-debounce 0.25))
 #+end_src
-*** eye candy
+**** eye candy
 org-modern config modified from https://sophiebos.io/posts/beautifying-emacs-org-mode/.
 #+begin_src emacs-lisp
 (use-package! org-modern
@@ -351,6 +351,101 @@ org-modern config modified from https://sophiebos.io/posts/beautifying-emacs-org
    "⭠ now ─────────────────────────────────────────────────")
 
   (global-org-modern-mode))
+#+end_src
+**** agenda
+#+begin_src emacs-lisp
+;; Org Agenda
+;; Set days viewed to 3, set start day to today, create seperator, and Dashboard view
+(setq org-agenda-remove-tags t)
+(setq org-agenda-block-separator 32)
+(setq org-agenda-custom-commands
+      '(("d" "Dashboard"
+         (
+          (tags "PRIORITY=\"A\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "\n HIGHEST PRIORITY")
+                 (org-agenda-prefix-format "   %i %?-2 t%s")
+                 )
+                )
+          (agenda ""
+                  (
+                   (org-agenda-start-day "+0d")
+                   (org-agenda-span 1)
+                   (org-agenda-time)
+                   (org-agenda-remove-tags t)
+                   (org-agenda-todo-keyword-format "")
+                   (org-agenda-scheduled-leaders '("" ""))
+                   (org-agenda-current-time-string "ᐊ┈┈┈┈┈┈┈┈┈ NOW")
+                   (org-agenda-overriding-header "\n TODAY'S SCHEDULE")
+                   (org-agenda-prefix-format "   %i %?-2 t%s")
+                   )
+                  )
+          (tags-todo  "-STYLE=\"habit\""
+                      (
+                       (org-agenda-overriding-header "\n ALL TODO")
+                       (org-agenda-sorting-strategy '(priority-down))
+                       (org-agenda-remove-tags t)
+                       (org-agenda-prefix-format "   %i %?-2 t%s")
+                       )
+                      )))))
+
+;; Remove Scheduled tag
+(setq org-agenda-scheduled-leaders '("" ""))
+;; Remove holidays from agenda
+(setq org-agenda-include-diary nil)
+#+end_src
+**** capture
+Capture templates
+#+begin_src emacs-lisp
+(after! org
+(setq org-capture-templates
+      '(("t" "Todo" entry
+         (file+headline "~/org/inbox.org" "Inbox")
+         "* TODO %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:CAPTURED: %a\n:END:\n%?")
+
+        ("e" "Event" entry
+         (file+headline "~/org/calendar.org" "Events")
+         "* %^{Event}\n%^{SCHEDULED}T\n:PROPERTIES:\n:CREATED: %U\n:CAPTURED: %a\n:CONTACT: %(org-capture-ref-link \"~/org/contacts.org\")\n:END:\n%?")
+
+        ("d" "Deadline" entry
+         (file+headline "~/org/calendar.org" "Deadlines")
+         "* TODO %^{Task}\nDEADLINE: %^{Deadline}T\n:PROPERTIES:\n:CREATED: %U\n:CAPTURED: %a\n:END:\n%?")
+
+        ("p" "Project" entry
+         (file+headline "~/org/projects.org" "Projects")
+         "* PROJ %^{Project name}\n:PROPERTIES:\n:CREATED: %U\n:CAPTURED: %a\n:END:\n** TODO %?")
+
+        ("i" "Idea" entry
+         (file+headline "~/org/ideas.org" "Ideas")
+         "** IDEA %^{Idea}\n:PROPERTIES:\n:CREATED: %U\n:CAPTURED: %a\n:END:\n%?")
+
+        ("b" "Bookmark" entry
+        (file+headline "~/org/bookmarks.org" "Inbox")
+        "** [[%^{URL}][%^{Title}]]\n:PROPERTIES:\n:CREATED: %U\n:TAGS: %(org-capture-bookmark-tags)\n:END:\n\n"
+        :empty-lines 0)
+
+        ("c" "Contact" entry
+         (file+headline "~/org/contacts.org" "Inbox")
+         "* %^{Name}
+
+:PROPERTIES:
+:CREATED: %U
+:CAPTURED: %a
+:EMAIL: %^{Email}
+:PHONE: %^{Phone}
+:BIRTHDAY: %^{Birthday +1y}u
+:LOCATION: %^{Address}
+:LAST_CONTACTED: %U
+:END:
+\\ *** Communications
+\\ *** Notes
+%?")
+
+        ("n" "Note" entry
+         (file+headline "~/org/notes.org" "Inbox")
+         "* [%<%Y-%m-%d %a>] %^{Title}\n:PROPERTIES:\n:CREATED: %U\n:CAPTURED: %a\n:END:\n%?"
+         :prepend t)))
+  )
 #+end_src
 ** :tools
 *** pdf
